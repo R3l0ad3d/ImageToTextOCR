@@ -8,6 +8,7 @@
     tools:context="test.net.atshq.imagetotextoct.MainActivity">
 
     <ImageView
+        android:id="@+id/ivImage"
         android:layout_width="match_parent"
         android:layout_height="200dp"
         android:src="@drawable/image1"/>
