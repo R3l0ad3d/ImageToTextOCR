@@ -37,7 +37,6 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView text;
     private int REQUEST_CAMERA = 0, SELECT_FILE = 1;
-    private Button btnSelect;
     private ImageView ivImage;
     private String userChoosenTask;
 
