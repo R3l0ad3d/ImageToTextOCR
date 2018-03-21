@@ -35,12 +35,16 @@ import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
 
+
     private TextView text;
     private int REQUEST_CAMERA = 0, SELECT_FILE = 1;
     private ImageView ivImage;
     private String userChoosenTask;
 
     private String mCurrentPhotoPath;
+
+    private static boolean flag = false;
+    private static boolean camera = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,14 +94,27 @@ public class MainActivity extends AppCompatActivity {
         switch (requestCode) {
             case Utility.MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    if(userChoosenTask.equals("Take Photo"))
-                        cameraIntent();
-                    else if(userChoosenTask.equals("Choose from Library"))
-                        galleryIntent();
+                   flag=true;
+                   Utility.checkCameraPermission(MainActivity.this);
                 } else {
-                    //code for deny
+                    Utility.checkPermission(MainActivity.this);
                 }
                 break;
+            case Utility.MY_PERMISSIONS_REQUEST_CAMERA:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    camera = true;
+                    if (userChoosenTask.equals("Take Photo")) {
+                        if (flag && camera)
+                            dispatchTakePictureIntent();
+
+                    } else if (userChoosenTask.equals("Choose from Library")) {
+                        if (flag && camera)
+                            galleryIntent();
+
+                    }
+                }else {
+                    Utility.checkCameraPermission(MainActivity.this);
+                }
         }
     }
 
@@ -110,17 +127,17 @@ public class MainActivity extends AppCompatActivity {
         builder.setItems(items, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int item) {
-                boolean result=Utility.checkPermission(MainActivity.this);
+                flag =Utility.checkPermission(MainActivity.this);
 
                 if (items[item].equals("Take Photo")) {
                     userChoosenTask ="Take Photo";
-                    if(result)
+                    if(flag&&camera)
                         //cameraIntent();
                         dispatchTakePictureIntent();
 
                 } else if (items[item].equals("Choose from Library")) {
                     userChoosenTask ="Choose from Library";
-                    if(result)
+                    if(flag&&camera)
                         galleryIntent();
 
                 } else if (items[item].equals("Cancel")) {
@@ -139,11 +156,6 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(Intent.createChooser(intent, "Select File"),SELECT_FILE);
     }
 
-    private void cameraIntent()
-    {
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivityForResult(intent, REQUEST_CAMERA);
-    }
 
     private void dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
